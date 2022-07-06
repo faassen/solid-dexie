@@ -23,7 +23,7 @@ test("dexie sanity check", async () => {
 test("live array, add one", async () => {
   let friends: Friend[];
 
-  const [resolve, wait, runDb] = runner();
+  const [resolve, startup, runDb] = runner();
 
   await createRoot(async () => {
     const currentFriends = createLiveArrayQuery2(() => db.friends.toArray());
@@ -39,7 +39,7 @@ test("live array, add one", async () => {
     );
   });
 
-  await wait();
+  await startup();
   expect(friends!).toEqual([]);
 
   await runDb(async () => {
@@ -51,7 +51,7 @@ test("live array, add one", async () => {
 test("live array, add two", async () => {
   let friends: Friend[];
 
-  const [resolve, wait, runDb] = runner();
+  const [resolve, startup, runDb] = runner();
 
   await createRoot(async () => {
     const currentFriends = createLiveArrayQuery2(() => db.friends.toArray());
@@ -67,7 +67,7 @@ test("live array, add two", async () => {
     );
   });
 
-  await wait();
+  await startup();
   expect(friends!).toEqual([]);
 
   await runDb(async () => {
@@ -82,6 +82,40 @@ test("live array, add two", async () => {
     { name: "Foo", age: 10 },
     { name: "Bar", age: 11 },
   ]);
+});
+
+test("live array, change name", async () => {
+  let friends: Friend[];
+
+  const [resolve, startup, runDb] = runner();
+
+  await createRoot(async () => {
+    const currentFriends = createLiveArrayQuery2(() => db.friends.toArray());
+
+    // to trigger observability we have to touch both length and name
+    createEffect(
+      on(
+        () => currentFriends.length === 1 && currentFriends[0].name,
+        () => {
+          friends = currentFriends;
+          resolve();
+        }
+      )
+    );
+  });
+
+  await startup();
+  expect(friends!).toEqual([]);
+
+  await runDb(async () => {
+    await db.friends.add({ name: "Foo", age: 10 });
+  });
+  expect(friends!).toMatchObject([{ name: "Foo", age: 10 }]);
+
+  await runDb(async () => {
+    await db.friends.update(friends[0].id!, { name: "CHANGED" });
+  });
+  expect(friends!).toMatchObject([{ name: "CHANGED", age: 10 }]);
 });
 
 class WaitFor {
