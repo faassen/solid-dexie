@@ -118,6 +118,8 @@ test("live array, change name", async () => {
   expect(friends!).toMatchObject([{ name: "CHANGED", age: 10 }]);
 });
 
+// XXX test about object reconciling
+
 class WaitFor {
   resolve: () => void = () => {};
 
