@@ -172,6 +172,39 @@ test("live array, reconcile should leave untouched object identical", async () =
   expect(friend1).toBe(friends![1]);
 });
 
+test("live array, bulk add", async () => {
+  let friends: Friend[];
+
+  const [resolve, startup, runDb] = runner();
+
+  await createRoot(async () => {
+    const currentFriends = createDexieArrayStore(() => db.friends.toArray());
+
+    createEffect(
+      on(
+        () => currentFriends.length,
+        () => {
+          friends = currentFriends;
+          resolve();
+        }
+      )
+    );
+  });
+
+  await startup();
+  await runDb(async () => {
+    await db.friends.bulkAdd([
+      { name: "Foo", age: 10 },
+      { name: "Bar", age: 11 },
+    ]);
+  });
+
+  expect(friends!).toMatchObject([
+    { name: "Foo", age: 10 },
+    { name: "Bar", age: 11 },
+  ]);
+});
+
 class WaitFor {
   resolve: () => void = () => {};
 
