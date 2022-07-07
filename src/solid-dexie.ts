@@ -13,12 +13,14 @@ import { liveQuery } from "dexie";
 
 type ReconcileOptions = Parameters<typeof reconcile>[1];
 
-export function createLiveQuery<T>(querier: () => T | Promise<T>): Accessor<T> {
+export function createDexieSignalQuery<T>(
+  querier: () => T | Promise<T>
+): Accessor<T | undefined> {
   const get = createMemo(() => from<T>(liveQuery(querier)));
   return () => get()();
 }
 
-export function createDexieArrayStore<T>(
+export function createDexieArrayQuery<T>(
   querier: () => T[] | Promise<T[]>
 ): T[] {
   const [store, setStore] = createStore<T[]>([]);
@@ -41,7 +43,7 @@ export function createLiveObjectQuery<T>(
   return () => value();
 }
 
-export function fromReconcile<T>(
+function fromReconcile<T>(
   producer: {
     subscribe: (
       fn: (v: T) => void
@@ -56,7 +58,7 @@ export function fromReconcile<T>(
   return s;
 }
 
-export function fromReconcileStore<T>(
+function fromReconcileStore<T>(
   producer: {
     subscribe: (
       fn: (v: T) => void
