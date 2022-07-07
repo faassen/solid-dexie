@@ -6,3 +6,5 @@
   control `id` and the like.
 
 - figure out whether the `merge` reconcile option makes sense.
+
+- Packaging
