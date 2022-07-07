@@ -53,6 +53,52 @@ describe("createDexieSignalQuery", () => {
     });
     expect(count).toEqual(1);
   });
+
+  test("count, where with signal", async () => {
+    let count: number | undefined;
+    let set: Setter<number>;
+
+    const [resolve, startup, runDb] = runner();
+
+    await createRoot(async () => {
+      const [n, setN] = createSignal(0);
+      set = setN;
+      const currentCount = createDexieSignalQuery(() =>
+        db.friends.where("age").above(n()).count()
+      );
+
+      createEffect(
+        on(
+          () => currentCount(),
+          () => {
+            count = currentCount();
+            resolve();
+          }
+        )
+      );
+
+      await startup();
+
+      await runDb(async () => {});
+      expect(count!).toEqual(0);
+
+      await runDb(async () => {
+        await db.friends.bulkAdd([
+          { name: "Foo", age: 10 },
+          { name: "Bar", age: 11 },
+        ]);
+      });
+
+      expect(count!).toEqual(2);
+
+      await runDb(async () => {
+        set!(10);
+      });
+      // XXX why is this needed to wait for the thing to settle?
+      await runDb(async () => {});
+      expect(count!).toEqual(1);
+    });
+  });
 });
 
 describe("createDexieArrayQuery", () => {
