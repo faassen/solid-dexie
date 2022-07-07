@@ -2,7 +2,7 @@ import "fake-indexeddb/auto";
 import { createRoot, on, createEffect, createSignal, Setter } from "solid-js";
 
 import { DbFixture, Friend } from "./db-fixture";
-import { createDexieArrayQuery } from "./solid-dexie";
+import { createDexieSignalQuery, createDexieArrayQuery } from "./solid-dexie";
 
 let db: DbFixture;
 
@@ -18,6 +18,41 @@ test("dexie sanity check", async () => {
   await db.friends.add({ name: "Foo", age: 10 });
   const result = await db.friends.toArray();
   expect(result).toMatchObject([{ age: 10, name: "Foo" }]);
+});
+
+describe("createDexieSignalQuery", () => {
+  test("count", async () => {
+    let count: number | undefined;
+
+    const [resolve, startup, runDb] = runner();
+
+    await createRoot(async () => {
+      const currentCount = createDexieSignalQuery(() => db.friends.count());
+
+      createEffect(
+        on(
+          () => currentCount(),
+          () => {
+            count = currentCount();
+            resolve();
+          }
+        )
+      );
+    });
+
+    await startup();
+    expect(count).toEqual(undefined);
+
+    // wait a tick
+    await runDb(async () => {});
+
+    expect(count).toEqual(0);
+
+    await runDb(async () => {
+      await db.friends.add({ name: "Foo", age: 10 });
+    });
+    expect(count).toEqual(1);
+  });
 });
 
 describe("createDexieArrayQuery", () => {
