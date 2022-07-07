@@ -34,30 +34,6 @@ export function createDexieArrayQuery<T>(
   return store;
 }
 
-export function createLiveObjectQuery<T>(
-  querier: () => T | Promise<T>
-): Accessor<T> {
-  const value = createMemo(() =>
-    fromReconcile<T>(liveQuery(querier), {} as any, { key: null, merge: true })
-  );
-  return () => value();
-}
-
-function fromReconcile<T>(
-  producer: {
-    subscribe: (
-      fn: (v: T) => void
-    ) => (() => void) | { unsubscribe: () => void };
-  },
-  empty: T,
-  options: ReconcileOptions = { key: "id" }
-): T {
-  const [s, set] = createStore<T>(empty as any);
-  const unsub = producer.subscribe((v) => set(reconcile(v, options)));
-  onCleanup(() => ("unsubscribe" in unsub ? unsub.unsubscribe() : unsub()));
-  return s;
-}
-
 function fromReconcileStore<T>(
   producer: {
     subscribe: (
