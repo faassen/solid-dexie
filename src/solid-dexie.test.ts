@@ -2,7 +2,7 @@ import "fake-indexeddb/auto";
 import { createRoot, on, createEffect, createSignal, Setter } from "solid-js";
 
 import { DbFixture, Friend } from "./db-fixture";
-import { createLiveQuery, createDexieArrayStore } from "./soliddexie";
+import { createLiveQuery, createDexieArrayStore } from "./solid-dexie";
 
 let db: DbFixture;
 
