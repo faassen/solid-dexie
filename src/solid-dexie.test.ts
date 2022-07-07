@@ -120,6 +120,7 @@ test("live array, change name", async () => {
 
 test("live array, reconcile should leave untouched object identical", async () => {
   let friends: Friend[];
+  let firedEffect = 0;
 
   const [resolve, startup, runDb] = runner();
 
@@ -135,6 +136,13 @@ test("live array, reconcile should leave untouched object identical", async () =
         }
       )
     );
+
+    createEffect(() => {
+      // we listen to the name of the first item
+      if (currentFriends.length > 1 && currentFriends[1].name) {
+        firedEffect++;
+      }
+    });
   });
 
   await startup();
@@ -154,6 +162,8 @@ test("live array, reconcile should leave untouched object identical", async () =
     name: "Bar",
     age: 11,
   });
+  expect(firedEffect).toBe(1);
+
   await runDb(async () => {
     await db.friends.update(friends[0].id!, { name: "CHANGED" });
   });
@@ -170,6 +180,8 @@ test("live array, reconcile should leave untouched object identical", async () =
   // but it's still the same object
   expect(friend0).toBe(friends![0]);
   expect(friend1).toBe(friends![1]);
+  // and we haven't fired the effect for friend[1] again
+  expect(firedEffect).toBe(1);
 });
 
 test("live array, bulk add", async () => {

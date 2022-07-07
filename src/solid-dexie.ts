@@ -18,15 +18,6 @@ export function createLiveQuery<T>(querier: () => T | Promise<T>): Accessor<T> {
   return () => get()();
 }
 
-export function createLiveArrayQuery<T>(
-  querier: () => T[] | Promise<T[]>
-): Accessor<T[]> {
-  const value = createMemo(() =>
-    fromReconcile<T[]>(liveQuery(querier), [] as any)
-  );
-  return () => value();
-}
-
 export function createDexieArrayStore<T>(
   querier: () => T[] | Promise<T[]>
 ): T[] {
