@@ -2,19 +2,19 @@ import {
   from,
   Accessor,
   createMemo,
-  Setter,
-  createSignal,
   createEffect,
   on,
   onCleanup,
 } from "solid-js";
 import { createStore, reconcile, SetStoreFunction } from "solid-js/store";
-import { liveQuery } from "dexie";
+import { liveQuery, PromiseExtended } from "dexie";
 
 type ReconcileOptions = Parameters<typeof reconcile>[1];
 
+type NotArray<T> = T extends any[] ? never : T;
+
 export function createDexieSignalQuery<T>(
-  querier: () => T | Promise<T>
+  querier: () => NotArray<T> | PromiseExtended<NotArray<T>>
 ): Accessor<T | undefined> {
   const get = createMemo(() => from<T>(liveQuery(querier)));
   return () => get()();
