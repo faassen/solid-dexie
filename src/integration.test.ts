@@ -2,7 +2,7 @@ import "fake-indexeddb/auto";
 import { createRoot, on, createEffect } from "solid-js";
 
 import { DbFixture, Friend } from "./db-fixture";
-import { createLiveQuery, createLiveArrayQuery2 } from "./soliddexie";
+import { createLiveQuery, createDexieArrayStore } from "./soliddexie";
 
 let db: DbFixture;
 
@@ -26,7 +26,7 @@ test("live array, add one", async () => {
   const [resolve, startup, runDb] = runner();
 
   await createRoot(async () => {
-    const currentFriends = createLiveArrayQuery2(() => db.friends.toArray());
+    const currentFriends = createDexieArrayStore(() => db.friends.toArray());
 
     createEffect(
       on(
@@ -54,7 +54,7 @@ test("live array, add two", async () => {
   const [resolve, startup, runDb] = runner();
 
   await createRoot(async () => {
-    const currentFriends = createLiveArrayQuery2(() => db.friends.toArray());
+    const currentFriends = createDexieArrayStore(() => db.friends.toArray());
 
     createEffect(
       on(
@@ -90,7 +90,7 @@ test("live array, change name", async () => {
   const [resolve, startup, runDb] = runner();
 
   await createRoot(async () => {
-    const currentFriends = createLiveArrayQuery2(() => db.friends.toArray());
+    const currentFriends = createDexieArrayStore(() => db.friends.toArray());
 
     // to trigger observability we have to touch both length and name
     createEffect(
@@ -118,7 +118,59 @@ test("live array, change name", async () => {
   expect(friends!).toMatchObject([{ name: "CHANGED", age: 10 }]);
 });
 
-// XXX test about object reconciling
+test("live array, reconcile should leave untouched object identical", async () => {
+  let friends: Friend[];
+
+  const [resolve, startup, runDb] = runner();
+
+  await createRoot(async () => {
+    const currentFriends = createDexieArrayStore(() => db.friends.toArray());
+
+    createEffect(
+      on(
+        () => currentFriends.length >= 1 && currentFriends[0].name,
+        () => {
+          friends = currentFriends;
+          resolve();
+        }
+      )
+    );
+  });
+
+  await startup();
+  await runDb(async () => {
+    await db.friends.add({ name: "Foo", age: 10 });
+  });
+  const friend0 = friends![0];
+  expect(friend0).toMatchObject({
+    name: "Foo",
+    age: 10,
+  });
+  await runDb(async () => {
+    await db.friends.add({ name: "Bar", age: 11 });
+  });
+  const friend1 = friends![1];
+  expect(friend1).toMatchObject({
+    name: "Bar",
+    age: 11,
+  });
+  await runDb(async () => {
+    await db.friends.update(friends[0].id!, { name: "CHANGED" });
+  });
+
+  expect(friends!).toMatchObject([
+    { name: "CHANGED", age: 10 },
+    { name: "Bar", age: 11 },
+  ]);
+  // existing reference is updated
+  expect(friend0).toMatchObject({
+    name: "CHANGED",
+    age: 10,
+  });
+  // but it's still the same object
+  expect(friend0).toBe(friends![0]);
+  expect(friend1).toBe(friends![1]);
+});
 
 class WaitFor {
   resolve: () => void = () => {};
