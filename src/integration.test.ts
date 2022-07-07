@@ -1,5 +1,5 @@
 import "fake-indexeddb/auto";
-import { createRoot, on, createEffect } from "solid-js";
+import { createRoot, on, createEffect, createSignal, Setter } from "solid-js";
 
 import { DbFixture, Friend } from "./db-fixture";
 import { createLiveQuery, createDexieArrayStore } from "./soliddexie";
@@ -203,6 +203,50 @@ test("live array, bulk add", async () => {
     { name: "Foo", age: 10 },
     { name: "Bar", age: 11 },
   ]);
+});
+
+test("live array, where with signal", async () => {
+  let friends: Friend[];
+  let set: Setter<number>;
+
+  const [resolve, startup, runDb] = runner();
+
+  await createRoot(async () => {
+    const [n, setN] = createSignal(0);
+    set = setN;
+    const currentFriends = createDexieArrayStore(() =>
+      db.friends.where("age").above(n()).toArray()
+    );
+
+    createEffect(
+      on(
+        () => currentFriends.length && n(),
+        () => {
+          friends = currentFriends;
+          resolve();
+        }
+      )
+    );
+    await startup();
+    await runDb(async () => {
+      await db.friends.bulkAdd([
+        { name: "Foo", age: 10 },
+        { name: "Bar", age: 11 },
+      ]);
+    });
+
+    expect(friends!).toMatchObject([
+      { name: "Foo", age: 10 },
+      { name: "Bar", age: 11 },
+    ]);
+
+    await runDb(async () => {
+      set!(10);
+    });
+    // XXX why is this needed to wait for the thing to settle?
+    await runDb(async () => {});
+    expect(friends!).toMatchObject([{ name: "Bar", age: 11 }]);
+  });
 });
 
 class WaitFor {

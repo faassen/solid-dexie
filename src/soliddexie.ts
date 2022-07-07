@@ -27,7 +27,6 @@ export function createLiveArrayQuery<T>(
   return () => value();
 }
 
-// this one is nice
 export function createDexieArrayStore<T>(
   querier: () => T[] | Promise<T[]>
 ): T[] {
