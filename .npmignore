@@ -1,0 +1,6 @@
+# override .gitignore as we don't want `dist` to be checked in
+# but we *do* want it to be included when we publish. Without
+# an .nmpignore, npm will use .gitignore by default which is
+# what we don't want. node_modules is automatically ignored.
+# https://docs.npmjs.com/cli/v8/using-npm/developers#keeping-files-out-of-your-package
+
