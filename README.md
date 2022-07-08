@@ -1,4 +1,4 @@
-# dexie-solid, Dexie integration for Solid
+# solid-dexie, Dexie integration for Solid
 
 [DexieJS](https://dexie.org/) is a more friendly wrapper around
 [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API).
@@ -19,7 +19,7 @@ thus your UI changes automatically when you update the signals.
 ## Installation
 
 ```shell
-npm install dexie-solid
+npm install solid-dexie
 ```
 
 It declares both `solid-js` and `dexie` as peer dependencies, so you
@@ -30,7 +30,7 @@ also need them installed in your projects.
 `createDexieArrayQuery` lets you create live queries. Here's an example:
 
 ```typescript
-import { createDexieArrayQuery } from "dexie-solid";
+import { createDexieArrayQuery } from "solid-dexie";
 
 const friends = createDexieArrayQuery(() => db.friends.toArray());
 ```
@@ -80,7 +80,7 @@ values. For this, you should use `createDexieSignalQuery`, which behaves much
 like a normal Solid signal.
 
 ```typescript
-import { createDexieSignalQuery } from "dexie-solid";
+import { createDexieSignalQuery } from "solid-dexie";
 
 const friendsCount = createDexieSignalQuery(() => db.friends.count());
 ```
