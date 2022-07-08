@@ -1,0 +1,18 @@
+{
+  "extends": "@tsconfig/recommended/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "strict": true,
+    "target": "es2020",
+    "rootDir": "src",
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationDir": "dist",
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node"
+  },
+  "include": ["src"],
+  "exclude": ["**/*.test.ts", "**/*.tsx", "**/*fixture.ts"]
+}

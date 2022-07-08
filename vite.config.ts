@@ -24,17 +24,7 @@ export default defineConfig({
           dexie: "dexie",
         },
       },
-      plugins: [
-        typescript({
-          target: "es2020",
-          rootDir: "src",
-          emitDeclarationOnly: true,
-          declaration: true,
-          declarationDir: "dist",
-          exclude: ["**/*.test.ts", "**/*.tsx", "**/*fixture.ts"],
-          allowSyntheticDefaultImports: true,
-        }),
-      ],
+      plugins: [typescript({ tsconfig: "./tsconfig.build.json" })],
     },
   },
 });

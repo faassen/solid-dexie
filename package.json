@@ -16,7 +16,8 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc --project tsconfig.build.json"
   },
   "license": "MIT",
   "devDependencies": {
