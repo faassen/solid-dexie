@@ -22,7 +22,7 @@
       "require": "./dist/solid-dexie.umd.js"
     }
   },
-  "types": "./dist/index.ts",
+  "types": "./dist/index.d.ts",
   "files": [
     "./dist"
   ],

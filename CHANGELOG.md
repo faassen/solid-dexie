@@ -7,16 +7,24 @@ release date when you use `npm version` (see `README.md`).
 
 ## [Unreleased]
 
+### Changed
+
+- Fix `types` reference in `package.json` so that typescript typings are
+  properly exported.
+
 ## [0.0.3][] - 2022-07-08
 
+More tweaks
+
 ## [0.0.2][] - 2022-07-08
+
+Tweaks
 
 ## [0.0.1][] - 2022-07-08
 
 Initial public release.
 
-
-[Unreleased]: https://github.com/faassen/solid-dexie/compare/v0.0.3...HEAD
+[unreleased]: https://github.com/faassen/solid-dexie/compare/v0.0.3...HEAD
 [0.0.3]: https://github.com/faassen/solid-dexie/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/faassen/solid-dexie/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/faassen/solid-dexie/tree/v0.0.1
