@@ -7,6 +7,8 @@ release date when you use `npm version` (see `README.md`).
 
 ## [Unreleased]
 
+## [0.0.5][] - 2022-07-08
+
 ### Changed
 
 - Fix README which was saying `dexie-solid` instead of `solid-dexie`.
@@ -36,3 +38,7 @@ Initial public release.
 [0.0.1]: https://github.com/faassen/solid-dexie/tree/v0.0.1
 [unreleased]: https://github.com/faassen/solid-dexie/compare/v0.0.4...HEAD
 [0.0.4]: https://github.com/faassen/solid-dexie/tree/v0.0.4
+
+
+[Unreleased]: https://github.com/faassen/solid-dexie/compare/v0.0.5...HEAD
+[0.0.5]: https://github.com/faassen/solid-dexie/tree/v0.0.5

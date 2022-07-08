@@ -1,6 +1,6 @@
 {
   "name": "solid-dexie",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Dexie integration for SolidJS",
   "homepage": "https://github.com/faassen/solid-dexie#readme",
   "keywords": [
