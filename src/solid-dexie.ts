@@ -6,10 +6,10 @@ import {
   on,
   onCleanup,
 } from "solid-js";
-import { createStore, reconcile, SetStoreFunction } from "solid-js/store";
+import { createStore, reconcile, ReconcileOptions, SetStoreFunction } from "solid-js/store";
 import { liveQuery, PromiseExtended } from "dexie";
 
-type ReconcileOptions = Parameters<typeof reconcile>[1];
+export const DEFAULT_RECONCILE_OPTIONS: ReconcileOptions = { key: "id" }
 
 type NotArray<T> = T extends any[] ? never : T;
 
@@ -42,7 +42,7 @@ function fromReconcileStore<T>(
   },
   store: T,
   setStore: SetStoreFunction<T>,
-  options: ReconcileOptions = { key: "id" }
+  options: ReconcileOptions = DEFAULT_RECONCILE_OPTIONS
 ): T {
   const unsub = producer.subscribe((v) => setStore(reconcile(v, options)));
   onCleanup(() => ("unsubscribe" in unsub ? unsub.unsubscribe() : unsub()));
