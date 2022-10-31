@@ -4,12 +4,10 @@ import {
   createMemo,
   createEffect,
   on,
-  onCleanup,
 } from "solid-js";
-import { createStore, reconcile, ReconcileOptions, SetStoreFunction } from "solid-js/store";
+import { createStore } from "solid-js/store";
 import { liveQuery, PromiseExtended } from "dexie";
-
-export const DEFAULT_RECONCILE_OPTIONS: ReconcileOptions = { key: "id" }
+import { fromReconcileStore } from "./from-reconcile-store";
 
 type NotArray<T> = T extends any[] ? never : T;
 
@@ -31,20 +29,5 @@ export function createDexieArrayQuery<T>(
     })
   );
 
-  return store;
-}
-
-function fromReconcileStore<T>(
-  producer: {
-    subscribe: (
-      fn: (v: T) => void
-    ) => (() => void) | { unsubscribe: () => void };
-  },
-  store: T,
-  setStore: SetStoreFunction<T>,
-  options: ReconcileOptions = DEFAULT_RECONCILE_OPTIONS
-): T {
-  const unsub = producer.subscribe((v) => setStore(reconcile(v, options)));
-  onCleanup(() => ("unsubscribe" in unsub ? unsub.unsubscribe() : unsub()));
   return store;
 }
