@@ -7,7 +7,7 @@ import {
 } from "solid-js";
 import { createStore, reconcile } from "solid-js/store";
 import { liveQuery, PromiseExtended } from "dexie";
-import {ResourceSource} from 'solid-js/types/reactive/signal';
+import { ResourceSource } from "solid-js/types/reactive/signal";
 
 import { fromReconcileStore, DEFAULT_RECONCILE_OPTIONS } from "./from-reconcile-store";
 
@@ -22,38 +22,29 @@ export function createDexieSignalQuery<T>(
   return () => get()();
 }
 
-
-export function createDexieArrayQuery<T>(
-  querier: () => T[] | Promise<T[]>,
-  options: ReconcileOptions = DEFAULT_RECONCILE_OPTIONS
-): T[] {
-  const [store, setStore] = createStore<T[]>([]);
-
-  createEffect(
-    on(querier, () => {
-      fromReconcileStore<T[]>(liveQuery(querier), store, setStore, options);
-    })
-  );
-
-  return store;
-}
-
-export function createDexieArrayQueryWithSource<T, S>(
+export function createDexieArrayQuery<T, S = undefined>(
   querier: (sourceValue?: S | false | null | undefined) => T[] | Promise<T[]>,
-  source: ResourceSource<S> = undefined,
-  options: ReconcileOptions = DEFAULT_RECONCILE_OPTIONS
+  options?: ReconcileOptions & {
+    source?: ResourceSource<S>,
+  },
+): T[]
+export function createDexieArrayQuery<T, S = undefined>(
+  querier: (_?: any) => T[] | Promise<T[]>,
+  options: ReconcileOptions & {
+    source?: never,
+  } = DEFAULT_RECONCILE_OPTIONS,
 ): T[] {
   const [store, setStore] = createStore<T[]>([]);
 
-  let deps;
   let sourceAccessor: Accessor<S | false | null | undefined> | undefined;
 
   const queryWithSource = () => {
-    return querier(sourceAccessor?.())
-  }
+    return querier(sourceAccessor?.());
+  };
 
+  let { source } = options;
   sourceAccessor = typeof source === "function" ? source as Accessor<S> : () => source;
-  deps = [queryWithSource, sourceAccessor];
+  const deps = [queryWithSource, sourceAccessor];
 
   createEffect(
     on(deps, () => {

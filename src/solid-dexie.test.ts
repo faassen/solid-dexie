@@ -2,7 +2,7 @@ import "fake-indexeddb/auto";
 import { createRoot, on, createEffect, createSignal, Setter, createRenderEffect } from "solid-js";
 
 import { DbFixture, Friend } from "./db-fixture";
-import { createDexieSignalQuery, createDexieArrayQuery, createDexieArrayQueryWithSource } from "./solid-dexie";
+import { createDexieSignalQuery, createDexieArrayQuery } from "./solid-dexie";
 
 let db: DbFixture;
 
@@ -138,9 +138,11 @@ describe("createDexieArrayQuery", () => {
     const PARAM = 30;
 
     await createRoot(async () => {
-      const matchingFriends = createDexieArrayQueryWithSource((source) => {
+      const matchingFriends = createDexieArrayQuery((source) => {
         return db.friends.where({ age: source }).toArray();
-      }, PARAM);
+      }, {
+        source: PARAM
+      });
 
       createEffect(
         on(
@@ -173,9 +175,11 @@ describe("createDexieArrayQuery", () => {
 
     await createRoot(async () => {
       const [filter, setFilter] = createSignal(35);
-      const matchingFriends = createDexieArrayQueryWithSource((x) => {
+      const matchingFriends = createDexieArrayQuery((x) => {
         return db.friends.where({ age: x }).toArray();
-      }, filter);
+      }, {
+        source: filter
+      });
 
       createRenderEffect(() => {
         setFilter(PARAM);
