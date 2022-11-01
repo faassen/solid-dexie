@@ -39,7 +39,7 @@ export function createDexieArrayQuery<T>(
 }
 
 export function createDexieArrayQueryWithSource<T, S>(
-  querier: (source?: ResourceSource<S>) => T[] | Promise<T[]>,
+  querier: (sourceValue?: S | false | null | undefined) => T[] | Promise<T[]>,
   source: ResourceSource<S> = undefined,
   options: ReconcileOptions = DEFAULT_RECONCILE_OPTIONS
 ): T[] {
@@ -49,7 +49,7 @@ export function createDexieArrayQueryWithSource<T, S>(
   let sourceAccessor: Accessor<S | false | null | undefined> | undefined;
 
   const queryWithSource = () => {
-    return querier(sourceAccessor)
+    return querier(sourceAccessor?.())
   }
 
   if (typeof source === "function") {
