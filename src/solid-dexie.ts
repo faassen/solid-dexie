@@ -52,13 +52,8 @@ export function createDexieArrayQueryWithSource<T, S>(
     return querier(sourceAccessor?.())
   }
 
-  if (typeof source === "function") {
-    sourceAccessor = source as Accessor<S>
-    deps = [queryWithSource, source as Accessor<S>];
-  } else {
-    sourceAccessor = () => source
-    deps = [queryWithSource, sourceAccessor];
-  }
+  sourceAccessor = typeof source === "function" ? source as Accessor<S> : () => source;
+  deps = [queryWithSource, sourceAccessor];
 
   createEffect(
     on(deps, () => {
