@@ -56,7 +56,8 @@ export function createDexieArrayQueryWithSource<T, S>(
     sourceAccessor = source as Accessor<S>
     deps = [queryWithSource, source as Accessor<S>];
   } else {
-    deps = [queryWithSource, (() => source) as Accessor<S>];
+    sourceAccessor = (() => source) as Accessor<S>
+    deps = [queryWithSource, sourceAccessor];
   }
 
   createEffect(
