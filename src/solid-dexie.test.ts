@@ -172,13 +172,13 @@ describe("createDexieArrayQuery", () => {
     const PARAM = 30;
 
     await createRoot(async () => {
-      const [param, setParam] = createSignal(35);
-      const matchingFriends = createDexieArrayQueryWithSource((param) => {
-        return db.friends.where({ age: param }).toArray();
-      }, param);
+      const [filter, setFilter] = createSignal(35);
+      const matchingFriends = createDexieArrayQueryWithSource((x) => {
+        return db.friends.where({ age: x }).toArray();
+      }, filter);
 
       createRenderEffect(() => {
-        setParam(PARAM);
+        setFilter(PARAM);
       });
 
       createEffect(
