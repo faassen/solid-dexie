@@ -166,7 +166,7 @@ describe("createDexieArrayQuery", () => {
     expect(friends!).toMatchObject([{ name: "Expected", age: PARAM }]);
   });
 
-  test("filtered live array (2), add one item", async () => {
+  test("filtered live array (2), add two items", async () => {
     let friends: Friend[];
 
     const [resolve, startup, runDb] = runner();
@@ -205,6 +205,16 @@ describe("createDexieArrayQuery", () => {
       await db.friends.add({ name: "Foo", age: 40 });
     });
     expect(friends!).toMatchObject([{ name: "Expected", age: PARAM }]);
+
+    await runDb(async () => {
+      await db.friends.add({ name: "Expected2", age: PARAM });
+      await db.friends.add({ name: "Foo", age: 35 });
+      await db.friends.add({ name: "Thirty-seven", age: 37 });
+    });
+    expect(friends!).toMatchObject([
+      { name: "Expected", age: PARAM },
+      { name: "Expected2", age: PARAM }
+    ]);
   });
 
   test("live array, add two", async () => {
