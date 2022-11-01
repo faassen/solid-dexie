@@ -46,7 +46,7 @@ export function createDexieArrayQueryWithSource<T, S>(
   const [store, setStore] = createStore<T[]>([]);
 
   let deps;
-  let sourceAccessor: Accessor<S> | undefined;
+  let sourceAccessor: Accessor<S | false | null | undefined> | undefined;
 
   const queryWithSource = () => {
     return querier(sourceAccessor)
@@ -56,7 +56,7 @@ export function createDexieArrayQueryWithSource<T, S>(
     sourceAccessor = source as Accessor<S>
     deps = [queryWithSource, source as Accessor<S>];
   } else {
-    sourceAccessor = (() => source) as Accessor<S>
+    sourceAccessor = () => source
     deps = [queryWithSource, sourceAccessor];
   }
 

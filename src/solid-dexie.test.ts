@@ -138,9 +138,9 @@ describe("createDexieArrayQuery", () => {
     const PARAM = 30;
 
     await createRoot(async () => {
-      const matchingFriends = createDexieArrayQueryWithSource(() => {
-        return db.friends.where({ age: 30 }).toArray();
-      }, 30);
+      const matchingFriends = createDexieArrayQueryWithSource((source) => {
+        return db.friends.where({ age: source() }).toArray();
+      }, PARAM);
 
       createEffect(
         on(
