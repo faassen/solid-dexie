@@ -1,8 +1,8 @@
 import "fake-indexeddb/auto";
-import { createRoot, on, createEffect, createSignal, Setter } from "solid-js";
+import { createRoot, on, createEffect, createSignal, Setter, createRenderEffect } from "solid-js";
 
 import { DbFixture, Friend } from "./db-fixture";
-import { createDexieSignalQuery, createDexieArrayQuery } from "./solid-dexie";
+import { createDexieSignalQuery, createDexieArrayQuery, createDexieArrayQueryWithSource } from "./solid-dexie";
 
 let db: DbFixture;
 
@@ -128,6 +128,80 @@ describe("createDexieArrayQuery", () => {
       await db.friends.add({ name: "Foo", age: 10 });
     });
     expect(friends!).toMatchObject([{ name: "Foo", age: 10 }]);
+  });
+
+  test("filtered live array (1), add one item", async () => {
+    let friends: Friend[];
+
+    const [resolve, startup, runDb] = runner();
+
+    const PARAM = 30;
+
+    await createRoot(async () => {
+      const matchingFriends = createDexieArrayQueryWithSource(() => {
+        return db.friends.where({ age: 30 }).toArray();
+      }, 30);
+
+      createEffect(
+        on(
+          () => [matchingFriends.length],
+          () => {
+            friends = matchingFriends;
+            resolve();
+          }
+        )
+      );
+    });
+
+    await startup();
+    expect(friends!).toEqual([]);
+
+    await runDb(async () => {
+      await db.friends.add({ name: "Foo", age: 20 });
+      await db.friends.add({ name: "Expected", age: PARAM });
+      await db.friends.add({ name: "Foo", age: 40 });
+    });
+    expect(friends!).toMatchObject([{ name: "Expected", age: PARAM }]);
+  });
+
+  test("filtered live array (2), add one item", async () => {
+    let friends: Friend[];
+
+    const [resolve, startup, runDb] = runner();
+
+    const DEFAULT = 50;
+    const PARAM = 30;
+
+    await createRoot(async () => {
+      const [param, setParam] = createSignal(DEFAULT);
+      const matchingFriends = createDexieArrayQueryWithSource(() => {
+        return db.friends.where({ age: param() }).toArray();
+      }, param);
+
+      createRenderEffect(() => {
+        setParam(PARAM);
+      });
+
+      createEffect(
+        on(
+          () => [matchingFriends.length],
+          () => {
+            friends = matchingFriends;
+            resolve();
+          }
+        )
+      );
+    });
+
+    await startup();
+    expect(friends!).toEqual([]);
+
+    await runDb(async () => {
+      await db.friends.add({ name: "Foo", age: 20 });
+      await db.friends.add({ name: "Expected", age: PARAM });
+      await db.friends.add({ name: "Foo", age: 40 });
+    });
+    expect(friends!).toMatchObject([{ name: "Expected", age: PARAM }]);
   });
 
   test("live array, add two", async () => {
