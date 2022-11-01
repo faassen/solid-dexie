@@ -169,11 +169,10 @@ describe("createDexieArrayQuery", () => {
 
     const [resolve, startup, runDb] = runner();
 
-    const DEFAULT = 50;
     const PARAM = 30;
 
     await createRoot(async () => {
-      const [param, setParam] = createSignal(DEFAULT);
+      const [param, setParam] = createSignal(35);
       const matchingFriends = createDexieArrayQueryWithSource(() => {
         return db.friends.where({ age: param() }).toArray();
       }, param);
