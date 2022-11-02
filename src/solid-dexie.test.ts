@@ -128,45 +128,9 @@ describe("createDexieArrayQuery", () => {
       await db.friends.add({ name: "Foo", age: 10 });
     });
     expect(friends!).toMatchObject([{ name: "Foo", age: 10 }]);
-  });
+  });;
 
-  test("filtered live array (1), add one item", async () => {
-    let friends: Friend[];
-
-    const [resolve, startup, runDb] = runner();
-
-    const PARAM = 30;
-
-    await createRoot(async () => {
-      const matchingFriends = createDexieArrayQuery((source) => {
-        return db.friends.where({ age: source }).toArray();
-      }, {
-        source: PARAM
-      });
-
-      createEffect(
-        on(
-          () => [matchingFriends.length],
-          () => {
-            friends = matchingFriends;
-            resolve();
-          }
-        )
-      );
-    });
-
-    await startup();
-    expect(friends!).toEqual([]);
-
-    await runDb(async () => {
-      await db.friends.add({ name: "Foo", age: 20 });
-      await db.friends.add({ name: "Expected", age: PARAM });
-      await db.friends.add({ name: "Foo", age: 40 });
-    });
-    expect(friends!).toMatchObject([{ name: "Expected", age: PARAM }]);
-  });
-
-  test("filtered live array (2), add two items", async () => {
+  test("filtered live array, add items, signal as parameter", async () => {
     let friends: Friend[];
 
     const [resolve, startup, runDb] = runner();
