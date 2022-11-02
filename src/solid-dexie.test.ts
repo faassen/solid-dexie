@@ -131,16 +131,17 @@ describe("createDexieArrayQuery", () => {
   });;
 
   test("filtered live array, add items, signal as parameter", async () => {
-    let results: Friend[];
+    let snapshot: Friend[];
 
     const [resolve, startup, runDb] = runner();
 
     const PARAM = 30;
+    const PARAM2 = 35
 
     await createRoot(async () => {
       const [filter, setFilter] = createSignal(28);
       const matchingFriends = createDexieArrayQuery((x) => {
-        return db.friends.where({ age: filter() }).toArray();
+        return db.friends.where({ age: x }).toArray();
       }, {
         source: filter
       });
@@ -155,7 +156,7 @@ describe("createDexieArrayQuery", () => {
         on(
           () => [matchingFriends.length],
           () => {
-            results = JSON.parse(JSON.stringify(matchingFriends));
+            snapshot = JSON.parse(JSON.stringify(matchingFriends));
             resolve();
           }
         )
@@ -163,28 +164,29 @@ describe("createDexieArrayQuery", () => {
 
       createEffect(()=>{
         if (matchingFriends.filter(friend=>friend.age === PARAM).length == 1) {
-          setFilter(35)
+          setFilter(PARAM2)
         }
       })
     });
 
     await startup();
-    expect(results!).toEqual([]);
+    expect(snapshot!).toEqual([]);
 
     await runDb(async () => {
       await db.friends.add({ name: "Foo", age: 20 });
-      await db.friends.add({ name: "Foo", age: 35 });
-      await db.friends.add({ name: "Foo", age: 35 });
-      await db.friends.add({ name: "Expected", age: PARAM });
       await db.friends.add({ name: "Foo", age: 40 });
+      await db.friends.add({ name: "Expected", age: PARAM });
+      await db.friends.add({ name: "Expected2", age: PARAM2 });
+      await db.friends.add({ name: "Expected3", age: PARAM2 });
     });
-    expect(results!).toMatchObject([{ name: "Expected", age: PARAM }]);
+    expect(snapshot!).toMatchObject([{ name: "Expected", age: PARAM }]);
     await runDb(async () => {
-      await db.friends.add({ name: "Expected2", age: PARAM });
+      await db.friends.add({ name: "...", age: PARAM });
     });
-    expect(results!).toMatchObject([
-      { name: "Foo", age: 35 },
-      { name: "Foo", age: 35 },
+    // The 'createEffect' above has done setFilter(PARAM2), so, expect results for that
+    expect(snapshot!).toMatchObject([
+      { name: "Expected2", age: PARAM2 },
+      { name: "Expected3", age: PARAM2 },
     ]);
   });
 
