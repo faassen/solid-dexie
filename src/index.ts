@@ -1,1 +1,1 @@
-export { createDexieSignalQuery, createDexieArrayQuery, createDexieArrayQueryWithSource } from "./solid-dexie";
+export { createDexieSignalQuery, createDexieArrayQuery } from "./solid-dexie";
