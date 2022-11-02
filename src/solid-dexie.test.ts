@@ -1,5 +1,5 @@
 import "fake-indexeddb/auto";
-import { createRoot, on, createEffect, createSignal, Setter, createRenderEffect } from "solid-js";
+import { createRoot, on, createEffect, createSignal, Setter, createRenderEffect, untrack } from "solid-js";
 
 import { DbFixture, Friend } from "./db-fixture";
 import { createDexieSignalQuery, createDexieArrayQuery } from "./solid-dexie";
@@ -128,10 +128,12 @@ describe("createDexieArrayQuery", () => {
       await db.friends.add({ name: "Foo", age: 10 });
     });
     expect(friends!).toMatchObject([{ name: "Foo", age: 10 }]);
-  });;
+  });
+
 
   test("filtered live array, add items, signal as parameter", async () => {
-    let friends: Friend[];
+    let results: Friend[];
+    // let resultsBaseCase: Friend[];
 
     const [resolve, startup, runDb] = runner();
 
@@ -145,7 +147,15 @@ describe("createDexieArrayQuery", () => {
         source: filter
       });
 
+      createEffect(() => {
+        console.log("@@@ matchingFriends", matchingFriends.length, matchingFriends);
+      });
+
       createRenderEffect(() => {
+        setFilter(35);
+        // queueMicrotask(() => {
+        //   resultsBaseCase = JSON.parse(JSON.stringify(matchingFriends));
+        // });
         setFilter(PARAM);
       });
 
@@ -153,29 +163,34 @@ describe("createDexieArrayQuery", () => {
         on(
           () => [matchingFriends.length],
           () => {
-            friends = matchingFriends;
-            resolve();
+            if (filter() == PARAM) {
+              results = matchingFriends;
+              resolve();
+            }
           }
         )
       );
     });
 
     await startup();
-    expect(friends!).toEqual([]);
+    expect(results!).toEqual([]);
 
     await runDb(async () => {
       await db.friends.add({ name: "Foo", age: 20 });
       await db.friends.add({ name: "Expected", age: PARAM });
+      await db.friends.add({ name: "Foo", age: 35 });
       await db.friends.add({ name: "Foo", age: 40 });
     });
-    expect(friends!).toMatchObject([{ name: "Expected", age: PARAM }]);
+    // expect(resultsBaseCase!).toMatchObject([
+    //   { name: "Foo", age: 35 }
+    // ]);
+    expect(results!).toMatchObject([{ name: "Expected", age: PARAM }]);
 
     await runDb(async () => {
       await db.friends.add({ name: "Expected2", age: PARAM });
-      await db.friends.add({ name: "Foo", age: 35 });
       await db.friends.add({ name: "Thirty-seven", age: 37 });
     });
-    expect(friends!).toMatchObject([
+    expect(results!).toMatchObject([
       { name: "Expected", age: PARAM },
       { name: "Expected2", age: PARAM }
     ]);
