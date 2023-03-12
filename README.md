@@ -60,7 +60,7 @@ You can also create dynamic queries with signals:
 
 ```typescript
 const [value, setValue] = createSignal(0);
-const friends = createDexieArrayQuery() => db.friends.where("age").above(value()).toArray());
+const friends = createDexieArrayQuery(() => db.friends.where("age").above(value()).toArray());
 ```
 
 Now when you modify `value` with `setValue`, `friends` automatically updates to
