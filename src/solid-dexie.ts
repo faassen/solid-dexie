@@ -21,13 +21,14 @@ export function createDexieSignalQuery<T>(
 }
 
 export function createDexieArrayQuery<T>(
-  querier: () => T[] | Promise<T[]>
+  querier: () => T[] | Promise<T[]>,
+  options?: ReconcileOptions,
 ): T[] {
   const [store, setStore] = createStore<T[]>([]);
 
   createEffect(
     on(querier, () => {
-      fromReconcileStore<T[]>(liveQuery(querier), store, setStore);
+      fromReconcileStore<T[]>(liveQuery(querier), store, setStore, options);
     })
   );
 
