@@ -18,6 +18,7 @@
   "module": "./dist/solid-dexie.es.js",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/solid-dexie.es.js",
       "require": "./dist/solid-dexie.umd.js"
     }
